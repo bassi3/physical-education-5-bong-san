@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>힙한 탈춤 프렌즈 - 5학년 체육 봉산탈춤 도감</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Google Fonts: 동글동글하고 귀여운 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic+Coding:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Gaegu', 'Nanum Gothic Coding', sans-serif;
+            background-color: #F0F4F8;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .text-neon {
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+        }
+        /* Custom scrollbar for mobile compatibility */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-0 sm:p-4 overflow-x-hidden select-none">
+
+    <!-- 메인 앱 컨테이너 (모바일 앱 목업 비율 고수) -->
+    <div id="app" class="relative w-full max-w-md h-[100vh] sm:h-[850px] bg-amber-50/30 rounded-none sm:rounded-[36px] shadow-2xl border-0 sm:border-8 border-slate-800 flex flex-col justify-between overflow-hidden">
+        
+        <!-- 상단 헤더 영역 -->
+        <header class="bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400 p-4 text-slate-900 shadow-md flex justify-between items-center z-10">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">🎭</span>
+                <h1 class="text-xl font-bold tracking-wider text-slate-900">힙한 탈춤 프렌즈</h1>
+            </div>
+            <div class="flex space-x-2">
+                <!-- 소리 On/Off 버튼 -->
+                <button id="soundToggle" onclick="toggleBGM()" class="p-2 bg-white/80 hover:bg-white rounded-full transition-all text-sm shadow">
+                    🔊 장단 켜짐
+                </button>
+            </div>
+        </header>
+
+        <!-- 메인 콘텐츠 스크린 영역 (동적 전환) -->
+        <main id="screen-container" class="flex-1 w-full relative bg-cover bg-center overflow-y-auto" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;">
+            
+            <!-- [스크린 1: 로비/홈] -->
+            <section id="screen-home" class="p-6 flex flex-col items-center justify-between h-full text-center">
+                <div class="my-auto space-y-6">
+                    <div class="relative inline-block">
+                        <div class="absolute -inset-1 rounded-full bg-gradient-to-r from-yellow-400 to-red-500 blur opacity-75 animate-pulse"></div>
+                        <span class="relative block text-7xl bg-white p-6 rounded-full shadow-lg">🦁</span>
+                    </div>
+                    <div class="space-y-2">
+                        <span class="px-3 py-1 bg-yellow-400 text-slate-900 font-bold text-xs rounded-full uppercase tracking-wider">5학년 체육 봉산탈춤</span>
+                        <h2 class="text-4xl font-extrabold text-slate-800 tracking-tight">덩덕쿵! 탈춤 교실</h2>
+                        <p class="text-md text-slate-600 px-4">부끄러움은 날려버려요! 내 캐릭터가 대신 춤추며 재미있게 익히는 봉산탈춤 도감</p>
+                    </div>
+                </div>
+
+                <div class="w-full space-y-3 mt-auto pb-6">
+                    <button onclick="switchTab('custom')" class="w-full py-4 bg-gradient-to-r from-red-400 to-orange-400 hover:from-red-500 hover:to-orange-500 text-white font-bold text-xl rounded-2xl shadow-lg transform active:scale-95 transition-all">
+                        🎨 내 캐릭터 꾸미기
+                    </button>
+                    <button onclick="switchTab('dictionary')" class="w-full py-4 bg-gradient-to-r from-blue-400 to-indigo-400 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xl rounded-2xl shadow-lg transform active:scale-95 transition-all">
+                        📖 3D 동작 도감 보기
+                    </button>
+                </div>
+            </section>
+
+            <!-- [스크린 2: 캐릭터 커스텀] -->
+            <section id="screen-custom" class="hidden h-full flex flex-col">
+                <!-- 3D 뷰포트 영역 -->
+                <div class="relative w-full h-[45%] bg-gradient-to-b from-blue-100 to-white overflow-hidden border-b border-slate-200">
+                    <div id="custom-canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+                    <div class="absolute bottom-3 left-3 bg-black/40 text-white px-3 py-1 rounded-full text-xs pointer-events-none flex items-center gap-1">
+                        👆 드래그하여 360도 돌려보세요
+                    </div>
+                </div>
+                <!-- 옵션 선택 탭 -->
+                <div class="flex-1 bg-white p-4 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-1 border-b pb-2">
+                            <span>🎨</span> 나만의 전통 부캐 코디하기
+                        </h3>
+                        
+                        <!-- 옷 색상 선택 -->
+                        <div class="space-y-2">
+                            <span class="text-sm font-semibold text-slate-500">도포 색상 (한복)</span>
+                            <div class="flex space-x-3">
+                                <button onclick="changeCustomOption('color', 0xffd54f)" class="w-8 h-8 rounded-full border-2 border-slate-200 bg-amber-300 transform active:scale-90 transition-all focus:outline-none" title="노란 도포"></button>
+                                <button onclick="changeCustomOption('color', 0xef5350)" class="w-8 h-8 rounded-full border-2 border-slate-200 bg-red-400 transform active:scale-90 transition-all focus:outline-none" title="붉은 도포"></button>
+                                <button onclick="changeCustomOption('color', 0x42a5f5)" class="w-8 h-8 rounded-full border-2 border-slate-200 bg-blue-400 transform active:scale-90 transition-all focus:outline-none" title="푸른 도포"></button>
+                                <button onclick="changeCustomOption('color', 0xab47bc)" class="w-8 h-8 rounded-full border-2 border-slate-200 bg-purple-400 transform active:scale-90 transition-all focus:outline-none" title="보라 도포"></button>
+                            </div>
+                        </div>
+
+                        <!-- 탈 종류 선택 -->
+                        <div class="space-y-2">
+                            <span class="text-sm font-semibold text-slate-500">얼굴 탈 설정</span>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="changeCustomOption('mask', 'mokjung')" class="py-2 px-3 bg-slate-100 hover:bg-yellow-100 rounded-xl text-xs font-bold transition-all border border-slate-200 active:bg-yellow-200">
+                                    ⚫ 먹중탈
+                                </button>
+                                <button onclick="changeCustomOption('mask', 'chwibali')" class="py-2 px-3 bg-slate-100 hover:bg-yellow-100 rounded-xl text-xs font-bold transition-all border border-slate-200 active:bg-yellow-200">
+                                    🔴 취발이탈
+                                </button>
+                                <button onclick="changeCustomOption('mask', 'none')" class="py-2 px-3 bg-slate-100 hover:bg-yellow-100 rounded-xl text-xs font-bold transition-all border border-slate-200 active:bg-yellow-200">
+                                    👦 맨얼굴
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 장신구/소품 설정 -->
+                        <div class="space-y-2">
+                            <span class="text-sm font-semibold text-slate-500">한삼 소품 (탈춤 소매)</span>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="changeCustomOption('hansam', 'long')" class="py-2 px-3 bg-slate-100 hover:bg-yellow-100 rounded-xl text-xs font-bold transition-all border border-slate-200 active:bg-yellow-200">
+                                    🧣 긴 한삼 (정통)
+                                </button>
+                                <button onclick="changeCustomOption('hansam', 'short')" class="py-2 px-3 bg-slate-100 hover:bg-yellow-100 rounded-xl text-xs font-bold transition-all border border-slate-200 active:bg-yellow-200">
+                                    🧤 짧은 손목깃
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="switchTab('dictionary')" class="w-full mt-4 py-3 bg-emerald-400 hover:bg-emerald-500 text-slate-900 font-bold text-lg rounded-xl shadow-md transform active:scale-95 transition-all">
+                        이 옷을 입고 탈춤 추러 가기! 👉
+                    </button>
+                </div>
+            </section>
+
+            <!-- [스크린 3: 3D 동작 도감] -->
+            <section id="screen-dictionary" class="hidden h-full flex flex-col">
+                <!-- 3D 뷰포트 영역 -->
+                <div class="relative w-full h-[45%] bg-gradient-to-b from-orange-100 to-white overflow-hidden border-b border-slate-200">
+                    <div id="dict-canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+                    
+                    <!-- 말풍선/이펙트 (불림 등) -->
+                    <div id="action-bubble" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 border-2 border-slate-800 px-4 py-2 rounded-full text-slate-900 font-bold text-base shadow-lg hidden animate-bounce z-10">
+                        낙양동천 이화정~! 🌟
+                    </div>
+
+                    <div class="absolute bottom-3 left-3 bg-black/40 text-white px-3 py-1 rounded-full text-xs pointer-events-none">
+                        👀 이리저리 돌려보며 세부 동작을 배워요
+                    </div>
+                </div>
+
+                <!-- 동작 리스트 및 설명 컨트롤러 -->
+                <div class="flex-1 bg-white p-4 overflow-y-auto flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-1">
+                                <span>📖</span> 핵심 기본 동작 교과서
+                            </h3>
+                            <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-lg">
+                                <button onclick="setPlaySpeed(0.5)" id="speed-slow" class="px-2 py-1 text-xs rounded hover:bg-white">0.5x</button>
+                                <button onclick="setPlaySpeed(1.0)" id="speed-normal" class="px-2 py-1 text-xs rounded bg-white font-bold shadow">1.0x</button>
+                            </div>
+                        </div>
+
+                        <!-- 동작 셀렉터 -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="playDictAction('bullim')" id="btn-action-bullim" class="action-btn py-3 px-2 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-xl text-sm font-bold border-2 border-amber-300 flex flex-col items-center gap-1">
+                                <span class="text-xl">🗣️</span> 불림 (외치기)
+                            </button>
+                            <button onclick="playDictAction('oesawi')" id="btn-action-oesawi" class="action-btn py-3 px-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-sm font-bold border border-slate-200 flex flex-col items-center gap-1">
+                                <span class="text-xl">💫</span> 외사위
+                            </button>
+                            <button onclick="playDictAction('gyeopsawi')" id="btn-action-gyeopsawi" class="action-btn py-3 px-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-sm font-bold border border-slate-200 flex flex-col items-center gap-1">
+                                <span class="text-xl">🌀</span> 겹사위
+                            </button>
+                            <button onclick="playDictAction('didimsae')" id="btn-action-didimsae" class="action-btn py-3 px-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-sm font-bold border border-slate-200 flex flex-col items-center gap-1">
+                                <span class="text-xl">👣</span> 발 디딤새
+                            </button>
+                        </div>
+
+                        <!-- 동작 설명 상세 정보 창 -->
+                        <div id="action-info" class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+                            <h4 id="action-title" class="font-bold text-slate-800 text-sm">동작을 선택하세요!</h4>
+                            <p id="action-desc" class="text-xs text-slate-600 leading-relaxed">탈춤의 기본 동작 버튼을 눌러 내 캐릭터가 신나게 추는 춤사위를 구경해 보세요.</p>
+                            <div id="action-tip" class="text-xs text-amber-600 font-semibold pt-1">💡 팁: 마우스로 돌려보며 손과 발의 조화로운 움직임을 확인해요.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- [스크린 4: 탈춤 놀이터 (미니게임)] -->
+            <section id="screen-game" class="hidden h-full flex flex-col p-4 space-y-4">
+                <div class="flex justify-between items-center bg-yellow-100 p-3 rounded-2xl border border-yellow-200">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm">🥁 신나는 타령장단 놀이</h3>
+                        <p class="text-xs text-slate-600">박자에 맞춰 아래의 악기 버튼을 눌러 춤을 이어가세요!</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-500 font-bold">점수</span>
+                        <div id="game-score" class="text-xl font-bold text-slate-800">0000</div>
+                    </div>
+                </div>
+
+                <!-- 게임 박자 표시 전광판 -->
+                <div class="flex-1 bg-slate-900 rounded-2xl flex flex-col items-center justify-center p-4 relative overflow-hidden">
+                    <div id="game-feedback" class="text-4xl font-black text-yellow-400 text-neon mb-4 animate-bounce">준비!</div>
+                    
+                    <!-- 박자 비트 인디케이터 -->
+                    <div class="flex space-x-2 w-full justify-center">
+                        <div class="beat-dot w-6 h-6 rounded-full bg-slate-700 transition-all border border-slate-600"></div>
+                        <div class="beat-dot w-6 h-6 rounded-full bg-slate-700 transition-all border border-slate-600"></div>
+                        <div class="beat-dot w-6 h-6 rounded-full bg-slate-700 transition-all border border-slate-600"></div>
+                        <div class="beat-dot w-6 h-6 rounded-full bg-slate-700 transition-all border border-slate-600"></div>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-2">쿵! 덕! 쿵! 덕! 전통 타령 장단 박자</div>
+
+                    <!-- 캐릭터 댄서 미니 프레임 -->
+                    <div class="absolute bottom-2 right-2 bg-white/10 text-white rounded-lg p-2 text-[10px] pointer-events-none">
+                        🔊 모바일은 음량을 켜세요!
+                    </div>
+                </div>
+
+                <!-- 타악기 터치 패드 -->
+                <div class="grid grid-cols-2 gap-3 pb-2">
+                    <button onclick="hitDrum('jungju')" class="py-5 bg-gradient-to-b from-red-400 to-red-500 text-white font-bold text-lg rounded-2xl active:scale-95 transition-all shadow-md active:bg-red-600">
+                        🥁 장구 (쿵)
+                    </button>
+                    <button onclick="hitDrum('kkwaeng')" class="py-5 bg-gradient-to-b from-yellow-400 to-yellow-500 text-slate-900 font-bold text-lg rounded-2xl active:scale-95 transition-all shadow-md active:bg-yellow-600">
+                        🔔 꽹과리 (개)
+                    </button>
+                </div>
+            </section>
+
+            <!-- [스크린 5: 탈춤 이야기 (유래 역사)] -->
+            <section id="screen-story" class="hidden h-full p-4 overflow-y-auto space-y-4">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-1 border-b pb-2">
+                    <span>📖</span> 쉽고 재미있는 봉산탈춤 이야기
+                </h3>
+
+                <!-- 카드 뉴스 스타일 스토리텔링 -->
+                <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                        <span class="px-2 py-0.5 bg-rose-100 text-rose-600 font-bold text-xs rounded-md">유래 01</span>
+                        <h4 class="font-bold text-slate-800">봉산탈춤이란 무엇인가요?</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            황해도 봉산 지방에서 전해 내려오던 가면극이에요. 주로 단오절 같은 명절날 밤에 활활 타오르는 모닥불을 피워 놓고 밤새도록 신나게 춤을 추며 즐겼답니다.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                        <span class="px-2 py-0.5 bg-blue-100 text-blue-600 font-bold text-xs rounded-md">유래 02</span>
+                        <h4 class="font-bold text-slate-800">왜 탈을 쓰고 춤을 추었을까요?</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            조선 시대 백성들이 평소에 말하기 힘들었던 불만이나 양반들의 얄미운 모습을 익살스러운 탈을 쓰고 신랄하게 풍자하고 비판하기 위함이었어요. 신나는 웃음과 몸짓으로 마음속의 응어리를 탁 털어냈던 최고의 놀이였죠!
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                        <span class="px-2 py-0.5 bg-amber-100 text-amber-600 font-bold text-xs rounded-md">유래 03</span>
+                        <h4 class="font-bold text-slate-800">박자가 아주 힙해요!</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            우리가 배우는 봉산탈춤의 주요 춤사위는 4박자의 <strong>'타령장단'</strong>에 맞추어 춘답니다. "덩-덕-쿵-덕" 하는 리듬을 타며 한삼을 휘날리면 누구나 힙합 댄서 부럽지 않은 가락을 뽐낼 수 있어요!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">
+                    <p class="text-xs text-emerald-700 font-semibold">💡 교과서 팁: 5학년 체육 과정 핵심!</p>
+                    <p class="text-xs text-slate-600 mt-1">탈춤은 단순히 춤을 추는 것이 아니라 장단과 몸의 움직임이 딱딱 맞아야 진정한 멋이 납니다.</p>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- 하단 글로벌 네비게이션 바 -->
+        <nav class="bg-slate-900 border-t border-slate-800 p-2 text-white z-10">
+            <ul class="flex justify-around items-center">
+                <li>
+                    <button onclick="switchTab('home')" id="tab-home" class="flex flex-col items-center p-2 text-yellow-400">
+                        <span class="text-lg">🏠</span>
+                        <span class="text-[11px] font-bold mt-1">홈</span>
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchTab('custom')" id="tab-custom" class="flex flex-col items-center p-2 text-slate-400">
+                        <span class="text-lg">🎨</span>
+                        <span class="text-[11px] font-bold mt-1">꾸미기</span>
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchTab('dictionary')" id="tab-dictionary" class="flex flex-col items-center p-2 text-slate-400">
+                        <span class="text-lg">📖</span>
+                        <span class="text-[11px] font-bold mt-1">동작도감</span>
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchTab('game')" id="tab-game" class="flex flex-col items-center p-2 text-slate-400">
+                        <span class="text-lg">🥁</span>
+                        <span class="text-[11px] font-bold mt-1">놀이터</span>
+                    </button>
+                </li>
+                <li>
+                    <button onclick="switchTab('story')" id="tab-story" class="flex flex-col items-center p-2 text-slate-400">
+                        <span class="text-lg">📜</span>
+                        <span class="text-[11px] font-bold mt-1">탈춤이야기</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+    </div>
+
+    <!-- 스크립트: 앱 로직 & Three.js 3D 렌더러 -->
+    <script>
+        // --- 글로벌 데이터 및 상태 정의 ---
+        let currentTab = 'home';
+        let isMuted = false;
+        let playSpeed = 1.0;
+        let selectedColor = 0xffd54f; // 기본 노란색 도포
+        let selectedMask = 'mokjung'; // 기본 먹중탈
+        let selectedHansam = 'long';   // 기본 긴 한삼
+
+        // Three.js 인스턴스 전역 관리 (꾸미기용 & 도감용)
+        let customScene, customCamera, customRenderer, customCharacter;
+        let dictScene, dictCamera, dictRenderer, dictCharacter;
+        let currentAnimation = 'idle'; // idle, bullim, oesawi, gyeopsawi, didimsae
+        let animationTime = 0;
+
+        // Web Audio API 생성 (전통 타악기 신디사이징)
+        let audioCtx = null;
+        let bgmInterval = null;
+        let isBgmPlaying = false;
+
+        // 동작 설명 데이터베이스
+        const actionDetails = {
+            bullim: {
+                title: "🗣️ 불림 (외침 동작)",
+                desc: "봉산탈춤의 시작을 알리며 다른 춤꾼들과 반주자에게 신호를 보내는 동작입니다. '낙양동천 이화정!' 하고 크게 외치며 허리를 살짝 굽혔다가 힘차게 팔을 펼칩니다.",
+                tip: "💡 동작 팁: 이 구호는 춤을 본격적으로 멋지게 출 수 있게 기운과 흥을 끌어올리는 중요한 시작선이에요!"
+            },
+            oesawi: {
+                title: "💫 외사위 (한 손 뿌리기)",
+                desc: "한삼(소매)을 손목 안쪽에서 어깨 위로 감아올린 뒤 머리 위로 커다란 원을 그리며 신나게 머리 밖으로 뿌려 뿌리는 동작입니다. 발로는 한쪽 다리를 껑충 딛는 디딤새와 연결됩니다.",
+                tip: "💡 동작 팁: 소매 끝 한삼이 원을 그리며 공중을 날아가는 모습을 머릿속으로 상상해 보세요!"
+            },
+            gyeopsawi: {
+                title: "🌀 겹사위 (두 손 뿌리기)",
+                desc: "두 팔을 가슴 안쪽으로 감아 당겼다가 외사위를 하듯 연속해서 두 번 크게 한삼을 공중에 뿌리는 화려한 춤사위입니다. 가장 다이내믹하고 풍성한 봉산탈춤의 얼굴 격인 동작입니다.",
+                tip: "💡 동작 팁: 몸 전체의 탄력을 이용해 위아래로 가볍게 무릎을 굽혔다 펴며(굴신) 박자를 맞추세요."
+            },
+            didimsae: {
+                title: "👣 발 디딤새 (다리 들기)",
+                desc: "양쪽 무릎을 높이 들어 올려 힘차게 땅을 디디며 힘차게 걷는 하체 춤사위입니다. 상체의 팔 동작이 가벼워 보이도록 중심을 단단히 잡으며 에너지를 채우는 동작입니다.",
+                tip: "💡 동작 팁: 발뒤꿈치부터 사뿐하고 무게감 있게 땅을 딛으며 무릎을 굽히는 '굴신' 동작에 주목하세요."
+            }
+        };
+
+        // --- 초기화 시점 ---
+        window.onload = function() {
+            initThreeJS();
+            switchTab('home');
+            startGlobalAnimationLoop();
+        };
+
+        // --- 탭 전환 로직 ---
+        function switchTab(tabId) {
+            currentTab = tabId;
+
+            // 모든 화면 숨기기
+            document.getElementById('screen-home').classList.add('hidden');
+            document.getElementById('screen-custom').classList.add('hidden');
+            document.getElementById('screen-dictionary').classList.add('hidden');
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-story').classList.add('hidden');
+
+            // 대상 화면 노출
+            const activeScreen = document.getElementById(`screen-${tabId}`);
+            if (activeScreen) activeScreen.classList.remove('hidden');
+
+            // 하단 네비게이션 아이콘 하이라이팅 변경
+            const tabs = ['home', 'custom', 'dictionary', 'game', 'story'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (btn) {
+                    if (t === tabId) {
+                        btn.className = 'flex flex-col items-center p-2 text-yellow-400';
+                    } else {
+                        btn.className = 'flex flex-col items-center p-2 text-slate-400 hover:text-slate-200';
+                    }
+                }
+            });
+
+            // 화면 전환 시 Three.js 캔버스 리사이즈 갱신 보증
+            if (tabId === 'custom') {
+                setTimeout(() => handleResize(customRenderer, customCamera, 'custom-canvas-container'), 50);
+                syncCharacterOptions(customCharacter);
+            } else if (tabId === 'dictionary') {
+                setTimeout(() => handleResize(dictRenderer, dictCamera, 'dict-canvas-container'), 50);
+                syncCharacterOptions(dictCharacter);
+                playDictAction('bullim'); // 진입 시 기본 액션 플레이
+            }
+
+            // 게임 탭 진입 제어
+            if (tabId === 'game') {
+                startGamePlay();
+            } else {
+                stopGamePlay();
+            }
+        }
+
+        // --- Three.js 3D 캐릭터 빌드 및 애니메이션 엔진 ---
+        function initThreeJS() {
+            // 1) 캐릭터 커스텀용 씬 구성
+            const customContainer = document.getElementById('custom-canvas-container');
+            const customData = createCharacterViewer(customContainer);
+            customScene = customData.scene;
+            customCamera = customData.camera;
+            customRenderer = customData.renderer;
+            customCharacter = customData.character;
+            setupDragControls(customContainer, customCamera);
+
+            // 2) 동작 도감용 씬 구성
+            const dictContainer = document.getElementById('dict-canvas-container');
+            const dictData = createCharacterViewer(dictContainer);
+            dictScene = dictData.scene;
+            dictCamera = dictData.camera;
+            dictRenderer = dictData.renderer;
+            dictCharacter = dictData.character;
+            setupDragControls(dictContainer, dictCamera);
+        }
+
+        // 공용 캐릭터 뷰어 셋업 도구
+        function createCharacterViewer(container) {
+            const width = container.clientWidth || 350;
+            const height = container.clientHeight || 300;
+
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xfbfbfb);
+
+            const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            camera.position.set(0, 1.2, 4.5);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // 조명 추가
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(2, 4, 3);
+            scene.add(dirLight);
+
+            // 캐릭터 루트 그룹 생성
+            const character = new THREE.Group();
+            scene.add(character);
+
+            buildStylizedCharacter(character);
+
+            // 무대 바닥 원판
+            const floorGeo = new THREE.CylinderGeometry(1.5, 1.5, 0.1, 32);
+            const floorMat = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.position.y = -1.0;
+            scene.add(floor);
+
+            // 보조 무대 가이드 링
+            const ringGeo = new THREE.RingGeometry(1.5, 1.55, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0xcbd5e1, side: THREE.DoubleSide });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.y = -0.94;
+            scene.add(ring);
+
+            return { scene, camera, renderer, character };
+        }
+
+        // 아기자기한 3D 가상 춤꾼 캐릭터 모델링
+        function buildStylizedCharacter(group) {
+            // 구조 설계용 본(Bone)을 흉내낸 그룹 구성
+            const bodyGroup = new THREE.Group();
+            bodyGroup.name = "bodyGroup";
+
+            // 1. 머리 (상큼하게 둥근 머리)
+            const headGeo = new THREE.SphereGeometry(0.5, 32, 32);
+            const headMat = new THREE.MeshLambertMaterial({ color: 0xffe0bd }); // 살구색 피부
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 1.1;
+            head.name = "head";
+            bodyGroup.add(head);
+
+            // 먹중탈 마스크 데코레이션용 전면판
+            const faceDecoGeo = new THREE.BoxGeometry(0.48, 0.48, 0.1);
+            const faceDecoMat = new THREE.MeshLambertMaterial({ color: 0x1e293b }); // 기본 먹중탈색
+            const faceDeco = new THREE.Mesh(faceDecoGeo, faceDecoMat);
+            faceDeco.position.set(0, 0, 0.45);
+            faceDeco.name = "faceDeco";
+            head.add(faceDeco);
+
+            // 눈동자
+            const eyeGeo = new THREE.SphereGeometry(0.06, 8, 8);
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeL.position.set(-0.15, 0.1, 0.5);
+            const eyeR = eyeL.clone();
+            eyeR.position.x = 0.15;
+            head.add(eyeL);
+            head.add(eyeR);
+
+            // 눈동자 검은자
+            const pupilGeo = new THREE.SphereGeometry(0.03, 8, 8);
+            const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            const pupilL = new THREE.Mesh(pupilGeo, pupilMat);
+            pupilL.position.set(-0.15, 0.1, 0.54);
+            const pupilR = pupilL.clone();
+            pupilR.position.x = 0.15;
+            head.add(pupilL);
+            head.add(pupilR);
+
+            // 볼터치 (아기자기함 가미)
+            const cheekGeo = new THREE.SphereGeometry(0.08, 8, 8);
+            const cheekMat = new THREE.MeshBasicMaterial({ color: 0xfca5a5 }); // 핑크빛
+            const cheekL = new THREE.Mesh(cheekGeo, cheekMat);
+            cheekL.position.set(-0.25, -0.1, 0.45);
+            const cheekR = cheekL.clone();
+            cheekR.position.x = 0.25;
+            head.add(cheekL);
+            head.add(cheekR);
+
+            // 머리카락 / 장치 (헤어밴드 느낌 상투)
+            const hairGeo = new THREE.CylinderGeometry(0.2, 0.25, 0.15, 16);
+            const hairMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
+            const hair = new THREE.Mesh(hairGeo, hairMat);
+            hair.position.y = 0.55;
+            head.add(hair);
+
+            // 2. 몸통 (도포 한복 느낌의 살짝 퍼지는 원기둥 형태)
+            const torsoGeo = new THREE.CylinderGeometry(0.2, 0.45, 0.9, 16);
+            const torsoMat = new THREE.MeshLambertMaterial({ color: selectedColor });
+            const torso = new THREE.Mesh(torsoGeo, torsoMat);
+            torso.position.y = 0.45;
+            torso.name = "torso";
+            bodyGroup.add(torso);
+
+            // 3. 어깨 끈/동정 디테일
+            const collarGeo = new THREE.CylinderGeometry(0.22, 0.25, 0.1, 16);
+            const collarMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+            const collar = new THREE.Mesh(collarGeo, collarMat);
+            collar.position.y = 0.45;
+            torso.add(collar);
+
+            // 4. 왼쪽 팔 & 오른쪽 팔 (탈춤을 위한 유연한 세그먼트 팔)
+            // 어깨 조인트를 기준축 삼기 위해 서브그룹 구성
+            const armLJoint = new THREE.Group();
+            armLJoint.position.set(-0.4, 0.7, 0);
+            armLJoint.name = "armLJoint";
+            
+            const armLGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8);
+            const armLMat = new THREE.MeshLambertMaterial({ color: selectedColor });
+            const armL = new THREE.Mesh(armLGeo, armLMat);
+            armL.position.y = -0.25; // 어깨 아래 방향으로 위치 오프셋
+            armL.rotation.z = Math.PI / 6;
+            armLJoint.add(armL);
+            
+            // 한삼 (소매 끝자락 장식물)
+            const hansamLGeo = new THREE.CylinderGeometry(0.12, 0.16, 0.5, 8);
+            const hansamLMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+            const hansamL = new THREE.Mesh(hansamLGeo, hansamLMat);
+            hansamL.position.y = -0.45;
+            hansamL.name = "hansamL";
+            armL.add(hansamL);
+            
+            bodyGroup.add(armLJoint);
+
+            // 우측 팔도 동일하게 대칭 구성
+            const armRJoint = new THREE.Group();
+            armRJoint.position.set(0.4, 0.7, 0);
+            armRJoint.name = "armRJoint";
+
+            const armRGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8);
+            const armRMat = new THREE.MeshLambertMaterial({ color: selectedColor });
+            const armR = new THREE.Mesh(armRGeo, armRMat);
+            armR.position.y = -0.25;
+            armR.rotation.z = -Math.PI / 6;
+            armRJoint.add(armR);
+
+            const hansamRGeo = new THREE.CylinderGeometry(0.12, 0.16, 0.5, 8);
+            const hansamRMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+            const hansamR = new THREE.Mesh(hansamRGeo, hansamRMat);
+            hansamR.position.y = -0.45;
+            hansamR.name = "hansamR";
+            armR.add(hansamR);
+
+            bodyGroup.add(armRJoint);
+
+            // 5. 왼쪽 다리 & 오른쪽 다리 (디딤새 묘사용)
+            const legLJoint = new THREE.Group();
+            legLJoint.position.set(-0.2, -0.1, 0);
+            legLJoint.name = "legLJoint";
+
+            const legLGeo = new THREE.CylinderGeometry(0.1, 0.08, 0.6, 8);
+            const legLMat = new THREE.MeshLambertMaterial({ color: 0xffffff }); // 하얀 바지
+            const legL = new THREE.Mesh(legLGeo, legLMat);
+            legL.position.y = -0.25;
+            legLJoint.add(legL);
+
+            // 버선 신발
+            const footLGeo = new THREE.BoxGeometry(0.14, 0.1, 0.25);
+            const footLMat = new THREE.MeshLambertMaterial({ color: 0xef4444 }); // 빨간 혜
+            const footL = new THREE.Mesh(footLGeo, footLMat);
+            footL.position.set(0, -0.32, 0.05);
+            legLJoint.add(footL);
+
+            bodyGroup.add(legLJoint);
+
+            const legRJoint = new THREE.Group();
+            legRJoint.position.set(0.2, -0.1, 0);
+            legRJoint.name = "legRJoint";
+
+            const legRGeo = new THREE.CylinderGeometry(0.1, 0.08, 0.6, 8);
+            const legRMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+            const legR = new THREE.Mesh(legRGeo, legRMat);
+            legR.position.y = -0.25;
+            legRJoint.add(legR);
+
+            const footRGeo = new THREE.BoxGeometry(0.14, 0.1, 0.25);
+            const footRMat = new THREE.MeshLambertMaterial({ color: 0x3b82f6 }); // 파란 혜
+            const footR = new THREE.Mesh(footRGeo, footRMat);
+            footR.position.set(0, -0.32, 0.05);
+            legRJoint.add(footR);
+
+            bodyGroup.add(legRJoint);
+
+            bodyGroup.position.y = -0.4;
+            group.add(bodyGroup);
+        }
+
+        // 선택한 파츠 사양(옷 색, 탈 형태, 소매 길이)을 실시간 메쉬에 업데이트 동기화
+        function syncCharacterOptions(charGroup) {
+            if (!charGroup) return;
+
+            // 도포 옷 색상 칠하기
+            const torso = charGroup.getObjectByName("torso");
+            if (torso) torso.material.color.setHex(selectedColor);
+
+            const armLJoint = charGroup.getObjectByName("armLJoint");
+            const armRJoint = charGroup.getObjectByName("armRJoint");
+            if (armLJoint && armLJoint.children[0]) armLJoint.children[0].material.color.setHex(selectedColor);
+            if (armRJoint && armRJoint.children[0]) armRJoint.children[0].material.color.setHex(selectedColor);
+
+            // 한삼 길이 크기 반영
+            const hansamL = charGroup.getObjectByName("hansamL");
+            const hansamR = charGroup.getObjectByName("hansamR");
+            const lengthScale = selectedHansam === 'long' ? 1.0 : 0.4;
+            if (hansamL) {
+                hansamL.scale.set(1, lengthScale, 1);
+                hansamL.position.y = selectedHansam === 'long' ? -0.45 : -0.25;
+            }
+            if (hansamR) {
+                hansamR.scale.set(1, lengthScale, 1);
+                hansamR.position.y = selectedHansam === 'long' ? -0.45 : -0.25;
+            }
+
+            // 탈 데코레이션 텍스처/컬러 교체 시뮬레이션
+            const faceDeco = charGroup.getObjectByName("faceDeco");
+            const head = charGroup.getObjectByName("head");
+            if (faceDeco) {
+                if (selectedMask === 'none') {
+                    faceDeco.visible = false;
+                } else {
+                    faceDeco.visible = true;
+                    if (selectedMask === 'mokjung') {
+                        faceDeco.material.color.setHex(0x1e293b); // 검은 먹중탈
+                    } else if (selectedMask === 'chwibali') {
+                        faceDeco.material.color.setHex(0xb91c1c); // 붉은 취발이탈
+                    }
+                }
+            }
+        }
+
+        // 실시간 커스텀 UI 변경 핸들러
+        function changeCustomOption(category, value) {
+            if (category === 'color') selectedColor = value;
+            if (category === 'mask') selectedMask = value;
+            if (category === 'hansam') selectedHansam = value;
+
+            // 두 메인 씬의 캐릭터 사양 일괄 동기화
+            syncCharacterOptions(customCharacter);
+            syncCharacterOptions(dictCharacter);
+
+            // 사운드 이펙트 탭 피드백용
+            playSynthBeep(260, 0.1);
+        }
+
+        // 창 크기가 바뀔 때 대응 가능한 헬퍼
+        function handleResize(renderer, camera, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container || !renderer || !camera) return;
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }
+
+        // 터치 및 드래그 동작 회전 감지 로직
+        function setupDragControls(container, camera) {
+            let isDragging = false;
+            let prevX = 0;
+            let angleY = 0;
+
+            const onStart = (e) => {
+                isDragging = true;
+                prevX = e.touches ? e.touches[0].clientX : e.clientX;
+            };
+
+            const onMove = (e) => {
+                if (!isDragging) return;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const deltaX = clientX - prevX;
+                prevX = clientX;
+
+                // 회전 카메라 포지셔닝 업데이트
+                angleY += deltaX * 0.01;
+                const radius = 4.5;
+                camera.position.x = radius * Math.sin(angleY);
+                camera.position.z = radius * Math.cos(angleY);
+                camera.lookAt(0, 0.2, 0);
+            };
+
+            const onEnd = () => { isDragging = false; };
+
+            container.addEventListener('mousedown', onStart);
+            container.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onEnd);
+
+            container.addEventListener('touchstart', onStart, { passive: true });
+            container.addEventListener('touchmove', onMove, { passive: true });
+            window.addEventListener('touchend', onEnd);
+        }
+
+        // --- 동작도감 상태 및 재생 설정 ---
+        function setPlaySpeed(speed) {
+            playSpeed = speed;
+            document.getElementById('speed-slow').className = speed === 0.5 ? 'px-2 py-1 text-xs rounded bg-white font-bold shadow' : 'px-2 py-1 text-xs rounded hover:bg-white';
+            document.getElementById('speed-normal').className = speed === 1.0 ? 'px-2 py-1 text-xs rounded bg-white font-bold shadow' : 'px-2 py-1 text-xs rounded hover:bg-white';
+            playSynthBeep(330, 0.08);
+        }
+
+        function playDictAction(actionId) {
+            currentAnimation = actionId;
+            animationTime = 0;
+
+            // 동작 선택 버튼 하이라이트 제어
+            const actionBtns = ['bullim', 'oesawi', 'gyeopsawi', 'didimsae'];
+            actionBtns.forEach(act => {
+                const btn = document.getElementById(`btn-action-${act}`);
+                if (btn) {
+                    if (act === actionId) {
+                        btn.className = "action-btn py-3 px-2 bg-yellow-400 text-slate-900 rounded-xl text-sm font-bold border-2 border-slate-800 flex flex-col items-center gap-1 shadow-inner";
+                    } else {
+                        btn.className = "action-btn py-3 px-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-sm font-bold border border-slate-200 flex flex-col items-center gap-1";
+                    }
+                }
+            });
+
+            // 우측 안내 텍스트 변경
+            const details = actionDetails[actionId];
+            if (details) {
+                document.getElementById('action-title').textContent = details.title;
+                document.getElementById('action-desc').textContent = details.desc;
+                document.getElementById('action-tip').textContent = details.tip;
+            }
+
+            // '불림'의 시그니처 말풍선 연출
+            const bubble = document.getElementById('action-bubble');
+            if (actionId === 'bullim') {
+                bubble.classList.remove('hidden');
+                // 소리 피드백
+                playBullimCueAudio();
+            } else {
+                bubble.classList.add('hidden');
+            }
+        }
+
+        // --- 실시간 3D 스페셜 프레임 애니메이션 루프 ---
+        function startGlobalAnimationLoop() {
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // 현재 속도에 맞춰 타임스탬프 누적
+                animationTime += 0.05 * playSpeed;
+
+                // 1) 커스텀 캐릭터 애니메이션 (기본 대기 상태 루프)
+                animateCharacter(customCharacter, 'idle', animationTime);
+                if (customRenderer && customCamera && customScene) {
+                    customRenderer.render(customScene, customCamera);
+                }
+
+                // 2) 도감 캐릭터 애니메이션 (다양한 동작 매핑)
+                animateCharacter(dictCharacter, currentAnimation, animationTime);
+                if (dictRenderer && dictCamera && dictScene) {
+                    dictRenderer.render(dictScene, dictCamera);
+                }
+            }
+            animate();
+        }
+
+        // 3D 뼈대 그룹에 본-로테이션 연산 부여 (핵심 봉산탈춤 춤사위 수학 공식화)
+        function animateCharacter(char, anim, t) {
+            if (!char) return;
+
+            const bodyGroup = char.getObjectByName("bodyGroup");
+            const head = char.getObjectByName("head");
+            const armLJoint = char.getObjectByName("armLJoint");
+            const armRJoint = char.getObjectByName("armRJoint");
+            const legLJoint = char.getObjectByName("legLJoint");
+            const legRJoint = char.getObjectByName("legRJoint");
+
+            if (!bodyGroup || !head || !armLJoint || !armRJoint || !legLJoint || !legRJoint) return;
+
+            // 변위 초기화
+            bodyGroup.position.y = -0.4;
+            head.rotation.set(0, 0, 0);
+            armLJoint.rotation.set(0, 0, 0);
+            armRJoint.rotation.set(0, 0, 0);
+            legLJoint.rotation.set(0, 0, 0);
+            legRJoint.rotation.set(0, 0, 0);
+
+            // 공통 기본 굴신 박자 (호흡 타며 상하 바운싱)
+            const bounce = Math.sin(t * 2) * 0.05;
+
+            switch (anim) {
+                case 'idle':
+                    // 얌전히 서서 가볍게 숨쉬며 좌우 흥 돋우기
+                    bodyGroup.position.y += bounce;
+                    armLJoint.rotation.z = Math.sin(t) * 0.15;
+                    armRJoint.rotation.z = -Math.sin(t) * 0.15;
+                    head.rotation.y = Math.sin(t * 0.5) * 0.1;
+                    break;
+
+                case 'bullim':
+                    // 허리를 살짝 구부렸다가 양팔을 크게 하늘로 올리며 선포하기
+                    const cycle = (t % (Math.PI * 2));
+                    if (cycle < Math.PI) {
+                        // 1단계: 수그리기
+                        bodyGroup.position.y += -0.1 + Math.sin(cycle) * 0.03;
+                        head.rotation.x = 0.2;
+                        armLJoint.rotation.z = Math.PI / 4;
+                        armRJoint.rotation.z = -Math.PI / 4;
+                    } else {
+                        // 2단계: 팔 번쩍 외치기
+                        bodyGroup.position.y += 0.15;
+                        head.rotation.x = -0.15;
+                        armLJoint.rotation.z = Math.PI - 0.4;
+                        armRJoint.rotation.z = -Math.PI + 0.4;
+                        armLJoint.rotation.y = Math.sin(t * 5) * 0.1; // 소매 벌벌 떨기
+                        armRJoint.rotation.y = -Math.sin(t * 5) * 0.1;
+                    }
+                    break;
+
+                case 'oesawi':
+                    // 외사위: 오른손 한삼을 머리 위로 힘차게 돌려 뿌리기 + 굴신
+                    bodyGroup.position.y += Math.sin(t * 3) * 0.08;
+                    
+                    // 왼팔은 다소 차분하게 옆으로 들기
+                    armLJoint.rotation.z = 0.5 + Math.sin(t) * 0.1;
+                    
+                    // 우측팔 원 운동 (가장 핵심!)
+                    armRJoint.rotation.z = -Math.PI / 2 + Math.cos(t * 3) * 0.8;
+                    armRJoint.rotation.x = Math.sin(t * 3) * 1.2;
+                    armRJoint.rotation.y = Math.cos(t * 3) * 0.5;
+
+                    // 머리 흔들기
+                    head.rotation.y = Math.sin(t * 3) * 0.25;
+                    
+                    // 발디딤새 동조 (우측 다리 껑충 들기)
+                    legRJoint.rotation.x = Math.max(0, Math.sin(t * 3)) * 0.8;
+                    break;
+
+                case 'gyeopsawi':
+                    // 겹사위: 양손 교차해서 두 바퀴 돌려 뿌리기
+                    bodyGroup.position.y += Math.sin(t * 3.5) * 0.09;
+                    
+                    // 왼팔 및 오른팔이 엇박자로 힘차게 어깨 위에서 회전
+                    armLJoint.rotation.z = Math.PI / 2 + Math.cos(t * 3.5) * 0.9;
+                    armLJoint.rotation.x = Math.sin(t * 3.5) * 1.0;
+
+                    armRJoint.rotation.z = -Math.PI / 2 + Math.cos(t * 3.5 + Math.PI) * 0.9;
+                    armRJoint.rotation.x = Math.sin(t * 3.5 + Math.PI) * 1.0;
+
+                    head.rotation.z = Math.sin(t * 3.5) * 0.15;
+                    
+                    // 힘찬 좌우 디딤새 굴신
+                    legLJoint.rotation.x = Math.max(0, Math.sin(t * 3.5)) * 0.6;
+                    legRJoint.rotation.x = Math.max(0, Math.sin(t * 3.5 + Math.PI)) * 0.6;
+                    break;
+
+                case 'didimsae':
+                    // 발 디딤새: 고개 무릎 춤과 매칭되어 좌우 다리를 엇갈려 힘차게 수직 상승 디디기
+                    bodyGroup.position.y += Math.abs(Math.sin(t * 4)) * 0.12 - 0.05;
+                    
+                    // 무릎을 위로 올렸다가 쿵 딛는 구조
+                    legLJoint.rotation.x = Math.sin(t * 2) * 0.7;
+                    legRJoint.rotation.x = -Math.sin(t * 2) * 0.7;
+
+                    // 양팔은 디딤새 밸런스를 맞추기 위해 가볍게 앞뒤로 흔들거리기
+                    armLJoint.rotation.z = Math.PI / 6 + Math.sin(t * 2) * 0.2;
+                    armRJoint.rotation.z = -Math.PI / 6 - Math.sin(t * 2) * 0.2;
+                    break;
+            }
+        }
+
+        // --- Web Audio API 기반 오디오 합성 및 게임 시스템 ---
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // 간단한 비프 사운드 제너레이터 (클릭 효과음용)
+        function playSynthBeep(freq, duration) {
+            try {
+                initAudio();
+                if (isMuted) return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log("Audio play deferred or blocked");
+            }
+        }
+
+        // 장구 "쿵" 소리 가상 신디사이징 (부드러운 타악 붐 사운드)
+        function playDrumBoom() {
+            try {
+                initAudio();
+                if (isMuted) return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
+
+                gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.32);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.32);
+            } catch (e) {}
+        }
+
+        // 꽹과리 "개/갱" 소리 가상 신디사이징 (쇳소리가 섞인 카랑한 고음)
+        function playBrassMetallic() {
+            try {
+                initAudio();
+                if (isMuted) return;
+
+                const osc = audioCtx.createOscillator();
+                const oscAlt = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.connect(gain);
+                oscAlt.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+                oscAlt.type = 'triangle';
+                oscAlt.frequency.setValueAtTime(950, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+
+                osc.start();
+                oscAlt.start();
+                osc.stop(audioCtx.currentTime + 0.2);
+                oscAlt.stop(audioCtx.currentTime + 0.2);
+            } catch (e) {}
+        }
+
+        // 불림 시그니처 멜로디 피치 플레이
+        function playBullimCueAudio() {
+            if (isMuted) return;
+            // "낙양동천이화정!" 느낌의 도레미 피치 사운드 시뮬레이터
+            const notes = [329, 392, 440, 523, 587]; // 미 솔 라 도 레
+            notes.forEach((freq, idx) => {
+                setTimeout(() => {
+                    playSynthBeep(freq, 0.15);
+                }, idx * 150);
+            });
+        }
+
+        // BGM 재생 및 토글 제어
+        function toggleBGM() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('soundToggle');
+            if (isMuted) {
+                btn.textContent = "🔇 소리 꺼짐";
+                btn.className = "p-2 bg-slate-300 rounded-full text-sm shadow text-slate-600";
+            } else {
+                btn.textContent = "🔊 장단 켜짐";
+                btn.className = "p-2 bg-white/80 hover:bg-white rounded-full text-sm shadow text-slate-800";
+                playSynthBeep(440, 0.1);
+            }
+        }
+
+        // --- 장단 미니 게임 라이프사이클 엔진 ---
+        let gameScore = 0;
+        let activeBeat = 0; // 0, 1, 2, 3 (4박자 타령장단 기반)
+        let gameInterval = null;
+        let lastHitTime = 0;
+        let isCorrectHit = false;
+
+        function startGamePlay() {
+            gameScore = 0;
+            activeBeat = 0;
+            document.getElementById('game-score').textContent = "0000";
+            document.getElementById('game-feedback').textContent = "시작!";
+            
+            // 타령장단 루프 시뮬레이터 생성 (주기 500ms당 1박자 = 분당 120비트)
+            gameInterval = setInterval(() => {
+                activeBeat = (activeBeat + 1) % 4;
+                isCorrectHit = false; // 신규 비트에 대한 초기화
+
+                // 전광판 도트 점등 상태 제어
+                const dots = document.querySelectorAll('.beat-dot');
+                dots.forEach((dot, idx) => {
+                    if (idx === activeBeat) {
+                        dot.className = "beat-dot w-6 h-6 rounded-full bg-yellow-400 border border-slate-900 shadow-md scale-125 transform transition-all";
+                    } else {
+                        dot.className = "beat-dot w-6 h-6 rounded-full bg-slate-700 border border-slate-600 transform scale-100 transition-all";
+                    }
+                });
+
+                // 특정 타령 장단 박자 소리 생성 (자동 반주 느낌)
+                // 박자 패턴: 0(쿵/장구) -> 1(덕) -> 2(쿵) -> 3(더러러)
+                if (!isMuted) {
+                    if (activeBeat === 0) playDrumBoom();
+                    else if (activeBeat === 2) playDrumBoom();
+                    else playSynthBeep(200, 0.05); // 약박
+                }
+
+                // 박자가 딱 떨어질 때 피드백 텍스트 교체 유도
+                const feedback = document.getElementById('game-feedback');
+                if (activeBeat === 0) {
+                    feedback.textContent = "🥁 쿵!";
+                    feedback.className = "text-4xl font-black text-rose-500 text-neon mb-4 scale-110 transition-all";
+                } else if (activeBeat === 1) {
+                    feedback.textContent = "✨ 덕!";
+                    feedback.className = "text-4xl font-black text-sky-400 text-neon mb-4 transition-all";
+                } else if (activeBeat === 2) {
+                    feedback.textContent = "🥁 쿵!";
+                    feedback.className = "text-4xl font-black text-rose-500 text-neon mb-4 transition-all";
+                } else {
+                    feedback.textContent = "🌿 더러러!";
+                    feedback.className = "text-4xl font-black text-yellow-400 text-neon mb-4 transition-all";
+                }
+
+            }, 700);
+        }
+
+        function stopGamePlay() {
+            if (gameInterval) {
+                clearInterval(gameInterval);
+                gameInterval = null;
+            }
+        }
+
+        // 플레이어 악기 터치 핸들러
+        function hitDrum(instrument) {
+            initAudio();
+            
+            // 악기 사운드 트리거
+            if (instrument === 'jungju') {
+                playDrumBoom();
+            } else {
+                playBrassMetallic();
+            }
+
+            // 점수 판정 처리 (장단 부합성 판정)
+            // 비트 0, 2번에서 쿵(장구) / 비트 1, 3번에서 꽹과리 타격 시 고득점!
+            let scoreAdd = 0;
+            const feedback = document.getElementById('game-feedback');
+
+            if (instrument === 'jungju' && (activeBeat === 0 || activeBeat === 2)) {
+                scoreAdd = 100;
+                feedback.textContent = "🎯 잘한다!!";
+                feedback.className = "text-4xl font-black text-emerald-400 text-neon mb-4 animate-ping";
+            } else if (instrument === 'kkwaeng' && (activeBeat === 1 || activeBeat === 3)) {
+                scoreAdd = 100;
+                feedback.textContent = "🎯 얼쑤!!";
+                feedback.className = "text-4xl font-black text-emerald-400 text-neon mb-4 animate-ping";
+            } else {
+                scoreAdd = 20;
+                feedback.textContent = "허이~! (엇박)";
+                feedback.className = "text-2xl font-bold text-amber-500 mb-4";
+            }
+
+            gameScore += scoreAdd;
+            document.getElementById('game-score').textContent = String(gameScore).padStart(4, '0');
+        }
+    </script>
+</body>
+</html>
